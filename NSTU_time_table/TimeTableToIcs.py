@@ -13,7 +13,7 @@ class WrongLastWeekException(Exception):
 class TimeTableToIcs:
     def __init__(self, url: str, subgroup: int = None, last_week: int = 18):
         self._url = url
-        if 0 < last_week:
+        if 13 < last_week:
             self._last_week = last_week
         else:
             raise WrongLastWeekException
