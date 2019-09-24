@@ -65,7 +65,7 @@ class ParserStateMachine:
 
     def _check_suggestion(self, regex: str, string: str) -> bool:
         check = re.match(r'^'+regex+r'$', string)
-        return False if check is None else True
+        return False if not check else True
 
     def _check_is_time(self, string: str) -> bool:
         return self._check_suggestion(r'\d+:\d+ - \d+:\d+', string)
@@ -74,7 +74,7 @@ class ParserStateMachine:
         return string == 'Ч' or string == 'Н'
 
     def _check_is_name(self, string: str) -> bool:
-        return self._check_suggestion(r'[А-я].+', string)
+        return self._check_suggestion(r'[А-Я].+', string)
 
     def _check_is_week(self, string: str) -> bool:
         return self._check_suggestion(r'нед.:[\s\d]+', string)
@@ -104,7 +104,7 @@ class ParserStateMachine:
 
     def _get_auditory(self, string: str) -> List[str]:
         data = re.findall(r'((\d+[а-я]*\-\d+[а-я]*)\s?)', string)
-        if data is []:
+        if not data:
             return [string]
         return [elem[0] for elem in data]
 
@@ -128,8 +128,6 @@ class ParserStateMachine:
                     lesson.even = elem
                 elif self._check_is_lecturer(elem):
                     lesson.lecturers.append(elem)
-                elif self._check_is_name(elem):
-                    lesson.name = elem
                 elif self._check_is_auditory(elem):
                     auditory = self._get_auditory(elem)
                     for e in auditory:
@@ -138,6 +136,8 @@ class ParserStateMachine:
                     lesson.week = self._get_week_numbers(elem)
                 elif self._check_is_subgroup(elem):
                     lesson.sub_group = self._get_num_subgroup(elem)
+                elif self._check_is_name(elem):
+                    lesson.name = elem
                 else:
                     raise FieldNotFound
 
@@ -202,7 +202,7 @@ class ParserStateMachine:
 
 
 def main():
-    url = "https://ciu.nstu.ru/student/time_table_view?idgroup=29165&fk_timetable=39446&nomenu=1&print=1"
+    url = "https://ciu.nstu.ru/student/time_table_view?idgroup=33255&fk_timetable=39553&nomenu=1&print=1"
     time_table = ParserStateMachine(url)
     print(time_table.get_time_table())
 
