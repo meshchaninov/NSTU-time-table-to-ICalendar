@@ -3,13 +3,20 @@ from typing import Tuple, List, Dict
 from ics import Calendar, Event
 from dateutil.tz import tzlocal
 import datetime
-from parser import NstuTimeTableParse, LessonStruct, HeadStruct, WEEK_DAY
+from NSTU_time_table.NSTUTimeTableParse import NSTUTimeTableParse, LessonStruct, HeadStruct, WEEK_DAY
+
+
+class WrongLastWeekException(Exception):
+    pass
 
 
 class TimeTableToIcs:
-    def __init__(self, url: str, subgroup: int = 0, last_week: int = 18):
+    def __init__(self, url: str, subgroup: int = None, last_week: int = 18):
         self._url = url
-        self._last_week = last_week
+        if 0 < last_week:
+            self._last_week = last_week
+        else:
+            raise WrongLastWeekException
         self._calendar = Calendar()
         self._head, self._data = self._get_data(url)
         self._beginning_of_weeks = self._get_beginning_of_weeks(
@@ -26,7 +33,7 @@ class TimeTableToIcs:
         self._subgroup = subgroup
 
     def _get_data(self, url: str) -> Tuple[HeadStruct, List[LessonStruct]]:
-        data = NstuTimeTableParse(url)
+        data = NSTUTimeTableParse(url)
         return data.get_head_table(), data.get_time_table()
 
     def _get_start_week_by_number(self, number: int) -> datetime.datetime:
@@ -129,14 +136,3 @@ class TimeTableToIcs:
                 self._calendar.events.add(event)
         return self._calendar
 
-
-def main():
-    t = TimeTableToIcs(url="https://ciu.nstu.ru/student/time_table_view?idgroup=33276&fk_timetable=40006&nomenu=1&print=1", subgroup=1)
-    cal = t.get_events()
-    print(cal)
-    with open("test.ics", "w") as file:
-        file.writelines(cal)
-
-
-if __name__ == '__main__':
-    main()

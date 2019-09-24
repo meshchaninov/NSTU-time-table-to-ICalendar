@@ -4,7 +4,6 @@ from typing import List, Tuple
 import datetime
 import requests
 import re
-import csv
 
 WEEK_DAY = ('Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота')
 
@@ -30,13 +29,19 @@ class LessonStruct:
     sub_group: int = None
 
 
-class FieldNotFound(Exception):
+class FieldNotFoundException(Exception):
     pass
 
-class NameNotFound(Exception):
+
+class NameNotFoundException(Exception):
     pass
 
-class NstuTimeTableParse:
+
+class PageNontFoundException(Exception):
+    pass
+
+
+class NSTUTimeTableParse:
     def __init__(self, url):
         self._url: str = url
         self._time_table: List[LessonStruct] = []
@@ -44,7 +49,11 @@ class NstuTimeTableParse:
         self._state_machine()
 
     def _get_page(self, url: str) -> str:
-        return requests.get(url).text
+        r = requests.get(url)
+        if r.status_code != 200:
+            raise PageNontFoundException
+        return r.text
+
 
     def _get_soup(self, url: str) -> BeautifulSoup:
         page = self._get_page(url)
@@ -109,6 +118,8 @@ class NstuTimeTableParse:
         return [elem[0] for elem in data]
 
     def _state_machine_data(self, data: List[List[str]]) -> List[LessonStruct]:
+        if not data:
+            raise PageNontFoundException
         time_table: List[LessonStruct] = []
         day: str = None
         start_time, end_time = None, None
@@ -139,7 +150,7 @@ class NstuTimeTableParse:
                 elif self._check_is_name(elem):
                     lesson.name = elem
                 else:
-                    raise FieldNotFound
+                    raise FieldNotFoundException
 
             # Если не найдено время на этой строке, значит оно указано на предыдущей (из-за rowspawn=2 и
             # кривых рук программиста:( )
@@ -147,7 +158,7 @@ class NstuTimeTableParse:
                 lesson.start_time = start_time
                 lesson.end_time = end_time
             if lesson.name is None:
-                raise NameNotFound
+                raise NameNotFoundException
             time_table.append(lesson)
         return time_table
 
@@ -190,23 +201,3 @@ class NstuTimeTableParse:
     def get_head_table(self) -> HeadStruct:
         return self._head
 
-    # TODO: DO THIS
-    # def to_csv_file(self) -> None:
-    #     with open(self._head.group + ' ' + str(self._head.semester_num) + ' семестр', 'w') as csv_file:
-    #         head = f'День,Начало,Конец,Ч/Н,Наиминование,'
-    #         for lesson in self._time_table:
-    #
-    #             line = f'{lesson.day},{lesson.start_time},{lesson.end_time},{lesson.even},{lesson.name},{lesson.lecturers},{lesson.sub_group},{lesson.auditory}\n'
-    #             csv_file.write(line)
-
-
-
-def main():
-    url = "https://ciu.nstu.ru/student/time_table_view?idgroup=33255&fk_timetable=39553&nomenu=1&print=1"
-    time_table = NstuTimeTableParse(url)
-    print(time_table.get_time_table())
-
-
-
-if __name__ == "__main__":
-    main()
