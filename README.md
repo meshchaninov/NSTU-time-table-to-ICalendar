@@ -45,6 +45,6 @@ optional arguments:
 ## Пример
 Сгенерировать **ICalendar** файл для группы РГ-91, подгруппы 2 и установить последнюю неделю - 17.
 ```bash
-python3 main.py https://ciu.nstu.ru/student/time_table_view?idgroup=33281&fk_timetable=40065 -s 2 -l 17
+python3 main.py https://ciu.nstu.ru/student/time_table_view?idgroup=33281&fk_timetable=40065 -s 2 -l 17 > РГ-91.ics
 
 ```
