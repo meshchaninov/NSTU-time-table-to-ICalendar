@@ -36,7 +36,7 @@ class FieldNotFound(Exception):
 class NameNotFound(Exception):
     pass
 
-class ParserStateMachine:
+class NstuTimeTableParse:
     def __init__(self, url):
         self._url: str = url
         self._time_table: List[LessonStruct] = []
@@ -203,7 +203,7 @@ class ParserStateMachine:
 
 def main():
     url = "https://ciu.nstu.ru/student/time_table_view?idgroup=33255&fk_timetable=39553&nomenu=1&print=1"
-    time_table = ParserStateMachine(url)
+    time_table = NstuTimeTableParse(url)
     print(time_table.get_time_table())
 
 

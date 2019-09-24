@@ -3,7 +3,7 @@ from typing import Tuple, List, Dict
 from ics import Calendar, Event
 from dateutil.tz import tzlocal
 import datetime
-from parser import ParserStateMachine, LessonStruct, HeadStruct, WEEK_DAY
+from parser import NstuTimeTableParse, LessonStruct, HeadStruct, WEEK_DAY
 
 
 class TimeTableToIcs:
@@ -26,7 +26,7 @@ class TimeTableToIcs:
         self._subgroup = subgroup
 
     def _get_data(self, url: str) -> Tuple[HeadStruct, List[LessonStruct]]:
-        data = ParserStateMachine(url)
+        data = NstuTimeTableParse(url)
         return data.get_head_table(), data.get_time_table()
 
     def _get_start_week_by_number(self, number: int) -> datetime.datetime:
