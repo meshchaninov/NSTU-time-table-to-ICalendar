@@ -13,6 +13,6 @@ if __name__ == '__main__':
     arg_parser.add_argument('-l', '--last-week', type=int, default=18 ,help='Номер последней недели в семестре (P.S. Парсеру неоткуда взять эту инфу). По умолчанию последняя неделя – 18')
     args = arg_parser.parse_args()
 
-    time_table = TimeTableToIcs(url=args.url, subgroup=args.subgroup, last_week=args.last)
+    time_table = TimeTableToIcs(url=args.url, subgroup=args.subgroup, last_week=args.last_week)
     print(time_table.get_events())
 
