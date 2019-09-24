@@ -49,7 +49,8 @@ class TimeTableToIcs:
         return WEEK_DAY.index(day)
 
     def _get_template_event_object(
-            self, name: str,
+            self,
+            name: str,
             auditory: List[str],
             lecturers: List[str],
             year: int,
@@ -85,7 +86,7 @@ class TimeTableToIcs:
         )
 
     def _generate_events_by_lesson(self, lesson: LessonStruct) -> List[Event]:
-        print(lesson)
+
         def gen_events(weeks: Dict[int, datetime.date], lesson: LessonStruct) -> List[Event]:
             events: List[Event] = []
             for week_number, begin_week in weeks.items():
@@ -106,18 +107,20 @@ class TimeTableToIcs:
                 )
                 events.append(event)
             return events
-
-        if lesson.week:
-            weeks = {week_number: self._beginning_of_weeks[week_number] for week_number in lesson.week}
-            events = gen_events(weeks, lesson)
-            return events
-        elif lesson.even:
-            weeks = self._even_weeks if lesson.even == 'Ч' else self._not_even_weeks
-            events = gen_events(weeks, lesson)
-            return events
+        if (self._subgroup and lesson.sub_group == self._subgroup) or not lesson.sub_group:
+            if lesson.week:
+                weeks = {week_number: self._beginning_of_weeks[week_number] for week_number in lesson.week}
+                events = gen_events(weeks, lesson)
+                return events
+            elif lesson.even:
+                weeks = self._even_weeks if lesson.even == 'Ч' else self._not_even_weeks
+                events = gen_events(weeks, lesson)
+                return events
+            else:
+                events = gen_events(self._beginning_of_weeks, lesson)
+                return events
         else:
-            events = gen_events(self._beginning_of_weeks, lesson)
-            return events
+            return [Event()]
 
     def get_events(self) -> Calendar:
         for lesson in self._data:
@@ -128,9 +131,9 @@ class TimeTableToIcs:
 
 
 def main():
-    t = TimeTableToIcs(url="https://ciu.nstu.ru/student/time_table_view?idgroup=33255&fk_timetable=39553&nomenu=1&print=1")
+    t = TimeTableToIcs(url="https://ciu.nstu.ru/student/time_table_view?idgroup=33276&fk_timetable=40006&nomenu=1&print=1", subgroup=1)
     cal = t.get_events()
-    # print(cal)
+    print(cal)
     with open("test.ics", "w") as file:
         file.writelines(cal)
 
