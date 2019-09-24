@@ -87,7 +87,7 @@ class TimeTableToIcs:
         return Event(
             name=name,
             location=f'НГТУ {" ".join(auditory)}' if auditory else '',
-            description=f'Преподователи: {" ".join(lecturers)}' if lecturers else '',
+            description=f'Преподаватели: {" ".join(lecturers)}' if lecturers else '',
             begin=begin,
             end=end
         )
